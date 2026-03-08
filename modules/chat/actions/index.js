@@ -133,3 +133,37 @@ export const deleteChat = async(chatId)=>{
     };
   }
 }
+
+export const getChatById = async (chatId) => {
+  const user = await currentUser();
+  if(!user) {
+    return {
+      succcess:false,
+      message:"UnAuthorized User"
+    }
+  }
+  try {
+    const chat = await db.chat.findUnique({
+      where:{
+        id:chat.id,
+        userId:user.id
+      },
+      include:{
+        messages:true
+      }
+    });
+
+    return {
+      success:true,
+      message:"Chats Fetched Successfully",
+      data:chat
+    }
+  } catch (error) {
+    console.error("Error fetching chats", error);
+    return {
+      success:false,
+      message:"Failed to fetch chats"
+    }
+    
+  }
+}
