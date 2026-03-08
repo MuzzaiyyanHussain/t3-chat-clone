@@ -1,8 +1,7 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  provider = "prisma-client-js"
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+}
 
 datasource db {
   provider = "postgresql"
@@ -10,15 +9,6 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
-model Test {
-  id    String @id @default(cuid())
-  name  String
-  email String
-}
 
 model User {
   id            String    @id
@@ -27,9 +17,10 @@ model User {
   emailVerified Boolean   @default(false)
   image         String?
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  updatedAt     DateTime  @default(now()) @updatedAt
   sessions      Session[]
   accounts      Account[]
+  chats         Chat[]
 
   @@unique([email])
   @@map("user")
@@ -47,7 +38,6 @@ model Session {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([token])
-  @@index([userId])
   @@map("session")
 }
 
@@ -67,7 +57,6 @@ model Account {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
-  @@index([userId])
   @@map("account")
 }
 
@@ -77,8 +66,50 @@ model Verification {
   value      String
   expiresAt  DateTime
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  updatedAt  DateTime @default(now()) @updatedAt
 
-  @@index([identifier])
   @@map("verification")
+}
+
+model Chat {
+  id String @id @default(cuid())
+  title String
+  model String
+  userId String
+  user User  @relation(fields: [userId] , references: [id] , onDelete: Cascade)
+
+  messages  Message[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([userId , updatedAt])
+  @@map("chat")
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
+enum MessageType {
+  NORMAL
+  ERROR
+  TOOL_CALL
+}
+
+model Message {
+  id  String @id @default(cuid())
+  messageRole MessageRole @default(USER)
+  messageType  MessageType @default(NORMAL)
+
+  content  String   @db.Text
+  model  String?
+  chatId  String
+  chat   Chat  @relation(fields: [chatId] , references: [id] , onDelete: Cascade)
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([chatId , createdAt])
+  @@map("message")
 }
