@@ -1,26 +1,32 @@
-"use client"
-import { useGetChatById } from '@/modules/chat/hooks/chat';
-import { useChatStore } from '@/modules/store/chat-store'
-import React, { useEffect } from 'react'
+"use client";
+import { useChatStore } from "@/modules/store/chat-store";
+import { useEffect } from "react";
+import { useGetChatById } from "@/modules/chat/hooks/chat";
+const ActiveChatLoader = ({chatId}) => {
+    const {setActiveChatId , setMessages , addChat , chats} = useChatStore();
 
-const ActiveChatLoader = ({ chatId }) => {
-    const { setActiveChatId, setMessages, addChat, chats } = useChatStore();
-    const { data } = useGetChatById();
-    useEffect(() => {
-        if (!chatId) return;
+    const {data} = useGetChatById(chatId);
+
+    useEffect(()=>{
+        if(!chatId) return;
+
         setActiveChatId(chatId)
-    }, [chatId, setActiveChatId]);
+    } , [chatId , setActiveChatId]);
 
-    useEffect(() => {
-        if(!data || !data.succcess || !data.data) return;
-         const chat = data.data;
+      useEffect(() => {
+    if (!data || !data.success || !data.data) return;
+
+    const chat = data.data;
+
+    // populate messages
     setMessages(chat.messages || []);
-    if(!chats.some(c => c.id === chat.id)) {
-        addChat(chat)
-    }
-    }, [data, setMessages, addChat, chats])
 
-    return null;
+    if (!chats?.some((c) => c.id === chat.id)) {
+      addChat(chat);
+    }
+  }, [data, setMessages, addChat, chats]);
+
+  return null;
 }
 
 export default ActiveChatLoader

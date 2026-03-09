@@ -4,6 +4,7 @@ import { MessageRole, MessageType } from "@prisma/client";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { CHAT_SYSTEM_PROMPT } from "@/lib/prompt";
 
+// initalize openRouter provider
 const provider = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY,
 });
@@ -71,7 +72,7 @@ export async function POST(req) {
     let modelMessages;
 
     try {
-      modelMessages = convertToModelMessages(allUIMessages);
+      modelMessages = await convertToModelMessages(allUIMessages);
     } catch (conversionError) {
       modelMessages = allUIMessages
         .map((msg) => ({
@@ -109,7 +110,7 @@ export async function POST(req) {
                 content: userPartsJSON,
                 messageRole: MessageRole.USER,
                 model,
-                MessageType: MessageType.NORMAL,
+                messageType: MessageType.NORMAL,
               });
             }
           }
@@ -122,7 +123,7 @@ export async function POST(req) {
               content: assistantPartsJSON,
               messageRole: MessageRole.ASSISTANT,
               model,
-              messageType: "NORMAL",
+              messageType: MessageType.NORMAL,
             });
           }
 

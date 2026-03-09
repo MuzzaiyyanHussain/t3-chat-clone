@@ -143,9 +143,9 @@ export const getChatById = async (chatId) => {
     }
   }
   try {
-    const chat = await db.chat.findUnique({
+    const chat = await db.chat.findFirst({
       where:{
-        id:chat.id,
+        id:chatId,
         userId:user.id
       },
       include:{
