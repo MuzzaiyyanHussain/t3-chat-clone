@@ -1,0 +1,26 @@
+name: CI-CD Pipeline
+
+on:
+   push:
+     branches: 
+        - main
+
+jobs: 
+   build-and-push: 
+     runs-on: ubuntu-latest
+
+     steps: 
+       - name: checkout-code
+         uses: actions/checkout@v4
+        
+       - name: login-to-dockerhub
+         uses: docker/login-action@v3
+         with: 
+           username: ${{ secrets.DOCKER_USERNAME }}
+           password: ${{ secrets.DOCKER_PASSWORD }}
+
+       - name: Build-docker-image
+         run: docker build -t muzzaiyyanhussain/t3chat:latest .
+
+       - name: Push-docker-image
+         run: docker push muzzaiyyanhussain/t3chat:latest
