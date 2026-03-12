@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: t3-chat-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: t3chat
+  template:
+    metadata:
+      labels:
+        app: t3chat
+    spec:
+      containers:
+        - name: t3chat
+          image: muzzaiyyanhussain/t3chat:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: t3chat-secret
